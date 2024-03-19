@@ -118,7 +118,8 @@ class Operators:
         Returns the identity operator.
 
         Args:
-            None
+            bSingle: boolean for a identity operator on a single site
+            idx: the index of the site
 
         Returns:
             The identity operator.
@@ -410,13 +411,13 @@ class Operators:
 
         Args:
             coords: A list of coordinates for the locations of each atom.
-            interaction_coeff: A list of lists of interaction coefficients. Suppose there are 3 types of atoms, then the interaction array is
+            interaction_coeff: A list of lists of interaction coefficients. Suppose there are 3 types of atoms, then the interaction array is \
             $ [[V_{11}, V_{12}, V_{13}], [V_{22}, V_{23}], [V_{33}]] $. A single number can also be used if there is only one type of atom.
             states: A list of the interacting state for each atom. A single number can be used for the same state on each atom.
             atom_types: A list of the atom types for each atom.
-            selection_idxs: A list of the atoms involved in the interaction. By default, all atoms are involved. Note that atoms that are not selected
+            selection_idxs: A list of the atoms involved in the interaction. By default, all atoms are involved. Note that atoms that are not selected \
             for will have their atom_types, states and coords ignored. However their entries must still be filled.
-            powers: A list of lists of the exponent of the distance dependent interaction. See interaction_coeff for the format. By default,
+            powers: A list of lists of the exponent of the distance dependent interaction. See interaction_coeff for the format. By default, \
             the power is assumed to be -6, a van der Waals interaction.
 
         Returns:
@@ -478,7 +479,21 @@ class Operators:
     @staticmethod
     def cGate(bit_type, target_op):
         """
-            If bit_type = -2 it is target. Otherwise it is state. If bit_type = -1, it is not involved
+            Returns a controlled gate.
+
+            Args:
+                bit_type: A list of values for each atom. A number greater than 0 indicates that atom is a control atom, and will \
+                induce the operation when the atom is in the specified state. For instance 3 indicates the atom induces the operation \
+                when in state 3. -1 indicates that the atom does not participate in the gate. -2 indicates the atom is a target. \
+                -2 corresponds to the first element of target_op, -3 indicates the next element and so on.
+                target_op: A list of target operations. The first target operation is addressed with a bit_type of -2. The next is -3 and so on.
+
+            Returns:
+                The controlled gate.
+
+            Raises:
+                None
+
         """
         global id_list, N
         if not isinstance(target_op, list):
@@ -523,6 +538,25 @@ class Operators:
 
 class Dynamics:
     def Unitary(H, init_state, tend, n_points, expects = [], names = [], bPlot = False):
+        """
+        Runs a unitary simulation (`qutip.sesolve`) and returns a `qutip.solver.Result` object. 
+
+        Args:
+            H: A Hamiltonian to run the simulation with.
+            init_state: An initial state
+            tend: The time to run the simulation to.
+            n_points: The number of time points for the simulation. They are evenly distributed from t = 0 to tend
+            expects: A list of expectation values to calculate for each time point.
+            names: The names for each expectation value, which is used when plotting.
+            bPlot: Whether to plot the result. 
+
+        Returns:
+            A `qutip.solver.Result` object.
+
+        Raises:
+            None
+
+        """
         if isinstance(init_state, qt.qobj.Qobj):
             init = init_state
         else:
@@ -557,6 +591,26 @@ class Dynamics:
         return res
 
     def MasterEq(H, init_state, tend, n_points, jump_ops = [], expects = [], names = [], bPlot = False):
+        """
+        Runs a master equation simulation (`qutip.mesolve`) and returns a `qutip.solver.Result` object. 
+
+        Args:
+            H: A Hamiltonian to run the simulation with.
+            init_state: An initial state
+            tend: The time to run the simulation to.
+            n_points: The number of time points for the simulation. They are evenly distributed from t = 0 to tend
+            jump_ops: A list of jump operators to use in the simulation
+            expects: A list of expectation values to calculate for each time point.
+            names: The names for each expectation value, which is used when plotting.
+            bPlot: Whether to plot the result. 
+
+        Returns:
+            A `qutip.solver.Result` object.
+
+        Raises:
+            None
+
+        """
         if isinstance(init_state, qt.qobj.Qobj):
             init = init_state
         else:
